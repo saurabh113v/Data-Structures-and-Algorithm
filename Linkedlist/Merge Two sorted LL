@@ -1,4 +1,4 @@
-// Java program to merge two sorted linked lists
+// Java program to merge two sorted linked lists using Array
 // using array
 import java.util.*;
 
