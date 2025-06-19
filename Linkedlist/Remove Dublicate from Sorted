@@ -1,4 +1,4 @@
-// Java program to remove duplicates
+// Java program to remove duplicates using recursion
 // from a sorted linked list
 import java.io.*;
 
