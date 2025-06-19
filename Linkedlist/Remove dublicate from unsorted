@@ -1,0 +1,84 @@
+// Java program to remove duplicates from
+// an unsorted doubly linked list
+
+class Node {
+    int data;
+    Node next;
+    Node prev;
+
+    Node(int val) {
+        data = val;
+        next = null;
+        prev = null;
+    }
+}
+
+class GfG {
+    static Node removeDuplicates(Node head) {
+        Node curr = head;
+
+        // Traverse each node in the list
+        while (curr != null) {
+            Node temp = curr;
+
+            // Traverse the remaining nodes to
+            // find and remove duplicates
+            while (temp.next != null) {
+
+                // Check if the next node has the same data
+                // as the current node
+                if (temp.next.data == curr.data) {
+
+                    // Duplicate found, remove it
+                    Node duplicate = temp.next;
+                    temp.next = temp.next.next;
+
+                    // Update the previous pointer of the
+                    // next node, if it exists
+                    if (temp.next != null)
+                        temp.next.prev = temp;
+
+                    // Free the memory of the duplicate node
+                    duplicate = null;
+                } 
+              	else {
+                  
+                  	// If the next node has different data from 
+              		// the current node, move to the next node
+                    temp = temp.next;
+                }
+            }
+            // Move to the next node in the list
+            curr = curr.next;
+        }
+        return head;
+    }
+  
+  	static void printList(Node head) {
+        Node curr = head;
+        while (curr != null) {
+            System.out.print(curr.data + " ");
+            curr = curr.next;
+        }
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+      
+        // Create a doubly linked list:
+     	// 1 <-> 2 <-> 3 <-> 2 <-> 4
+        Node head = new Node(1);
+        head.next = new Node(2);
+        head.next.prev = head;
+        head.next.next = new Node(3);
+        head.next.next.prev = head.next;
+        head.next.next.next = new Node(2);
+        head.next.next.next.prev = head.next.next;
+        head.next.next.next.next = new Node(4);
+        head.next.next.next.next.prev = head.next.next.next;
+
+        head = removeDuplicates(head);
+
+        printList(head);
+    }
+}
