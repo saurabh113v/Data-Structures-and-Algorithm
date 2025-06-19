@@ -1,0 +1,68 @@
+// Java program to remove duplicates
+// from a sorted linked list
+import java.io.*;
+
+class Node {
+    int data;
+    Node next;
+    Node(int x) {
+        data = x;
+        next = null;
+    }
+}
+
+class GfG {
+
+    // Function to remove duplicates
+     static void removeDuplicates(Node head) {
+      
+        // Base case: if the list is empty, return
+        if (head == null)
+            return;
+
+        // Check if the next node exists
+        if (head.next != null) {
+
+            // If current node has duplicate data with the
+            // next node
+            if (head.data == head.next.data) {
+                head.next = head.next.next;
+                removeDuplicates(head);
+            }
+            else {
+                // Continue with next node
+                removeDuplicates(head.next);
+            }
+        }
+    }
+
+    static void printList(Node node) {
+        while (node != null) {
+            System.out.print(node.data + " ");
+            node = node.next;
+        }
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+      
+        // Create a sorted linked list:
+        // 11->11->11->13->13->20
+        Node head = new Node(11);
+        head.next = new Node(11);
+        head.next.next = new Node(11);
+        head.next.next.next = new Node(13);
+        head.next.next.next.next = new Node(13);
+        head.next.next.next.next.next = new Node(20);
+
+        System.out.println(
+            "Linked list before duplicate removal:");
+        printList(head);
+
+        removeDuplicates(head);
+
+        System.out.println(
+            "Linked list after duplicate removal:");
+        printList(head);
+    }
+}
