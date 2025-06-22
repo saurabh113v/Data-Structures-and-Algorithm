@@ -1,0 +1,48 @@
+class Solution {
+    public int sumSubarrayMins(int[] arr) {
+         int length = arr.length;
+        int[] left = new int[length];
+        int[] right = new int[length];
+        Arrays.fill(left, -1);
+        Arrays.fill(right, length);
+        Deque<Integer> stack = new ArrayDeque<>();
+        for (int i = 0; i < length; ++i) {
+            while (!stack.isEmpty() && arr[stack.peek()] >= arr[i]) {
+                stack.pop();
+            }
+            if (!stack.isEmpty()) {
+                left[i] = stack.peek();
+            }
+            stack.push(i);
+        }
+        stack.clear();
+        for (int i = length - 1; i >= 0; --i) {
+            while (!stack.isEmpty() && arr[stack.peek()] > arr[i]) {
+                stack.pop();
+            }
+            // The current top of the stack indicates the next smaller element
+            if (!stack.isEmpty()) {
+                right[i] = stack.peek();
+            }
+            // Push the current index into the stack
+            stack.push(i);
+        }
+      
+        // The mod value for big integer operations to prevent overflow
+        int mod = (int) 1e9 + 7;
+        // The result variable to keep track of the sum of subarray minimums
+        long answer = 0;
+      
+        // Calculate the contribution of each element as a minimum in its possible subarrays
+        for (int i = 0; i < length; ++i) {
+            // Total count of subarrays where arr[i] is min is (i - left[i]) * (right[i] - i)
+            // Multiply the count by the value itself and apply modulo operation
+            answer += (long) (i - left[i]) * (right[i] - i) % mod * arr[i] % mod;
+            // Ensure the running sum doesn't overflow
+            answer %= mod;
+        }
+      
+        // Cast the long result to int before returning as per method return type
+        return (int) answer;
+    }
+}
