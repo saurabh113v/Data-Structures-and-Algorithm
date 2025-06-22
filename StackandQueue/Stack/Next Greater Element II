@@ -1,0 +1,22 @@
+class Solution {
+    public int[] nextGreaterElements(int[] nums) {
+         int n = nums.length;
+        int[] answer = new int[n];
+        Arrays.fill(answer, -1);
+        // Use a deque as a stack to keep track of indices.
+        Deque<Integer> stack = new ArrayDeque<>();
+      
+        // Iterate through the array twice to simulate a circular array.
+        for (int i = 0; i < 2 * n; ++i) {
+            while (!stack.isEmpty() && nums[stack.peek()] < nums[i % n]) {
+                // Update the answer for the index at the top of the stack.
+                answer[stack.pop()] = nums[i % n];
+            }
+            if (i < n) {
+                stack.push(i);
+            }
+        }
+        // Return the answer array with next greater elements for each index.
+        return answer;
+    }
+}
