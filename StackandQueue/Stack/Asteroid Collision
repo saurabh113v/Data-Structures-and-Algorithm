@@ -1,0 +1,30 @@
+class Solution {
+    public int[] asteroidCollision(int[] asteroids) {
+        Deque<Integer> stack = new ArrayDeque<>();
+      
+        // Iterate through the array of asteroids
+        for (int asteroid : asteroids) {
+            // If the asteroid is moving to the right, push it onto the stack
+            if (asteroid > 0) {
+                stack.offerLast(asteroid);
+            } else {
+                // While there are asteroids in the stack moving to the right, and the
+                // current asteroid's magnitude is larger, pop the asteroids from the stack
+                while (!stack.isEmpty() && stack.peekLast() > 0 && stack.peekLast() < -asteroid) {
+                    stack.pollLast();
+                }
+              
+                // If the top of the stack is an asteroid of the same magnitude but moving in the opposite direction, destroy both
+                if (!stack.isEmpty() && stack.peekLast() == -asteroid) {
+                    stack.pollLast();
+                } else if (stack.isEmpty() || stack.peekLast() < 0) {
+                    // If there are no asteroids on the stack or the top asteroid is moving to the left, push the current asteroid onto the stack
+                    stack.offerLast(asteroid);
+                }
+            }
+        }
+      
+        // Convert the remaining asteroids in the stack to an array
+        return stack.stream().mapToInt(Integer::valueOf).toArray(); 
+    }
+}
