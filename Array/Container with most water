@@ -1,0 +1,26 @@
+class Solution {
+    public int maxArea(int[] height) {
+         int left = 0; 
+        int right = height.length - 1;
+        // Variable to keep track of the maximum area
+        int maxArea = 0;
+      
+        // Iterate until the two pointers meet
+        while (left < right) {
+            // Calculate the area with the shorter line as the height and the distance between the lines as the width
+            int currentArea = Math.min(height[left], height[right]) * (right - left);
+            // Update the maximum area if the current area is larger
+            maxArea = Math.max(maxArea, currentArea);
+          
+            // Move the pointer that points to the shorter line towards the center
+            if (height[left] < height[right]) {
+                left++;
+            } else {
+                right--;
+            }
+        }
+      
+        // Return the maximum area found
+        return maxArea;
+    }
+}
