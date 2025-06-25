@@ -1,0 +1,59 @@
+import java.util.*;
+
+public class Solution {
+    public long kthSmallestProduct(int[] nums1, int[] nums2, long k) {
+        List<Integer> A1 = new ArrayList<>();
+        List<Integer> A2 = new ArrayList<>();
+        List<Integer> B1 = new ArrayList<>();
+        List<Integer> B2 = new ArrayList<>();
+
+        separate(nums1, A1, A2);
+        separate(nums2, B1, B2);
+
+        long negCount = (long) A1.size() * B2.size() + (long) A2.size() * B1.size();
+        int sign = 1;
+
+        if (k > negCount) {
+            k -= negCount;  // find (k - negCount)-th positive product
+        } else {
+            k = negCount - k + 1;  // find (negCount - k + 1)-th abs(negative product)
+            sign = -1;
+            List<Integer> temp = B1;
+            B1 = B2;
+            B2 = temp;
+        }
+
+        long left = 0, right = (long) 1e10;
+        while (left < right) {
+            long mid = (left + right) / 2;
+            if (numProductNoGreaterThan(A1, B1, mid) + numProductNoGreaterThan(A2, B2, mid) >= k)
+                right = mid;
+            else
+                left = mid + 1;
+        }
+
+        return sign * left;
+    }
+
+    private void separate(int[] arr, List<Integer> negList, List<Integer> posList) {
+        for (int val : arr) {
+            if (val < 0)
+                negList.add(-val); // store as positive
+            else
+                posList.add(val);
+        }
+        Collections.sort(negList); // keep it ascending
+    }
+
+    private long numProductNoGreaterThan(List<Integer> A, List<Integer> B, long m) {
+        long count = 0;
+        int j = B.size() - 1;
+
+        for (long a : A) {
+            while (j >= 0 && a * (long) B.get(j) > m)
+                j--;
+            count += (j + 1);
+        }
+        return count;
+    }
+}
