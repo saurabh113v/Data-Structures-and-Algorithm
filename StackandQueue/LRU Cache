@@ -1,0 +1,92 @@
+import java.util.HashMap;
+import java.util.Map;
+
+// Definition for a doubly linked list node
+class DoublyLinkedNode {
+    int key;
+    int value;
+    DoublyLinkedNode prev;
+    DoublyLinkedNode next;
+
+    // Constructor for creating a new node with key and value
+    public DoublyLinkedNode(int key, int value) {
+        this.key = key;
+        this.value = value;
+    }
+}
+
+// LRUCache class implementing LRU caching mechanism
+public class LRUCache {
+    private final Map<Integer, DoublyLinkedNode> cacheMap; // Hash map to store key-node pairs for O(1) access
+    private final DoublyLinkedNode head;                   // Dummy head of the doubly linked list
+    private final DoublyLinkedNode tail;                   // Dummy tail of the doubly linked list
+    private final int capacity;                            // Maximum capacity of the cache
+    private int size;                                      // Current size of the cache
+
+    // Constructor to initialize the LRU cache
+    public LRUCache(int capacity) {
+        this.capacity = capacity;
+        this.cacheMap = new HashMap<>();
+        this.size = 0;
+        head = new DoublyLinkedNode(0, 0);
+        tail = new DoublyLinkedNode(0, 0);
+        head.next = tail; // Initially, the dummy head points to the dummy tail
+        tail.prev = head; // and the dummy tail points back to the dummy head
+    }
+
+    // Retrieves the value of the node associated with the given key
+    public int get(int key) {
+        if (!cacheMap.containsKey(key)) {
+            return -1;
+        }
+        DoublyLinkedNode node = cacheMap.get(key);
+        moveToHead(node); // Move the accessed node to the head to maintain LRU order
+        return node.value;
+    }
+
+    // Adds a new key-value pair to the cache or updates the value if it already exists
+    public void put(int key, int value) {
+        if (cacheMap.containsKey(key)) {
+            DoublyLinkedNode node = cacheMap.get(key);
+            node.value = value;
+            moveToHead(node); // Move the updated node to the head
+        } else {
+            DoublyLinkedNode newNode = new DoublyLinkedNode(key, value);
+            cacheMap.put(key, newNode);
+            addToHead(newNode); // Add the new node to the head of the linked list
+            size++;
+            if (size > capacity) {
+                DoublyLinkedNode tail = removeTail(); // Remove the least recently used node
+                cacheMap.remove(tail.key); // Also remove it from the map
+                size--;
+            }
+        }
+    }
+
+    // Moves a node to the head of the doubly linked list (marks it as recently used)
+    private void moveToHead(DoublyLinkedNode node) {
+        removeNode(node); // Remove the node from its current position
+        addToHead(node); // Add it back to the head
+    }
+
+    // Removes a node from the doubly linked list
+    private void removeNode(DoublyLinkedNode node) {
+        node.prev.next = node.next;
+        node.next.prev = node.prev;
+    }
+
+    // Adds a node right after the dummy head node (marks it as recently used)
+    private void addToHead(DoublyLinkedNode node) {
+        node.next = head.next;
+        node.prev = head;
+        head.next.prev = node;
+        head.next = node;
+    }
+
+    // Removes and returns the tail node (least recently used node)
+    private DoublyLinkedNode removeTail() {
+        DoublyLinkedNode res = tail.prev;
+        removeNode(res);
+        return res;
+    }
+}
