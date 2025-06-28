@@ -1,0 +1,129 @@
+class LFUCache {
+     private final Map<Integer, Node> cache; 
+    private final Map<Integer, DoublyLinkedList> frequencyMap; 
+    private final int capacity; 
+    private int minimumFrequency;
+    public LFUCache(int capacity) {
+        this.capacity = capacity;
+        cache = new HashMap<>();
+        frequencyMap = new HashMap<>();
+    }
+    
+    public int get(int key) {
+         if (capacity == 0) {
+            return -1;
+        }
+        if (!cache.containsKey(key)) {
+            return -1;
+        }
+
+        // get the node and increment its frequency
+        Node node = cache.get(key);
+        increaseFrequency(node);
+        return node.value;
+    }
+    
+    public void put(int key, int value) {
+        if (capacity == 0) {
+            return;
+        }
+        if (cache.containsKey(key)) {
+            // update the value and frequency of the existing node
+            Node node = cache.get(key);
+            node.value = value;
+            increaseFrequency(node);
+            return;
+        }
+        if (cache.size() == capacity) {
+            // evict the least frequently used node, choosing the least recently used one if there's a tie
+            DoublyLinkedList leastFreqList = frequencyMap.get(minimumFrequency);
+            Node toRemove = leastFreqList.removeLast();
+            cache.remove(toRemove.key);
+        }
+        // create a new node and add it to the cache and frequency map
+        Node newNode = new Node(key, value);
+        addNodeToFrequencyList(newNode);
+        cache.put(key, newNode);
+        minimumFrequency = 1; // reset the minimum frequency
+    }
+
+    private void increaseFrequency(Node node) {
+        int currentFrequency = node.frequency;
+        DoublyLinkedList currentList = frequencyMap.get(currentFrequency);
+        currentList.remove(node);
+        if (currentList.isEmpty()) {
+            frequencyMap.remove(currentFrequency);
+            if (currentFrequency == minimumFrequency) {
+                minimumFrequency++; // increment the minimum frequency if necessary
+            }
+        }
+        node.frequency++;
+        addNodeToFrequencyList(node);
+    }
+
+    private void addNodeToFrequencyList(Node node) {
+        // add the node to the new frequency's list or create a new list if it does not exist
+        int newFrequency = node.frequency;
+        DoublyLinkedList newList = frequencyMap.getOrDefault(newFrequency, new DoublyLinkedList());
+        newList.addFirst(node);
+        frequencyMap.put(newFrequency, newList);
+    }
+
+    private static class Node {
+        int key;
+        int value;
+        int frequency; // the frequency of accesses to this node
+        Node prev;
+        Node next;
+
+        Node(int key, int value) {
+            this.key = key;
+            this.value = value;
+            frequency = 1; // initially, all nodes have frequency 1
+        }
+    }
+
+    private static class DoublyLinkedList {
+        // dummy head and tail make it easier to add/remove nodes
+        private final Node head;
+        private final Node tail;
+
+        public DoublyLinkedList() {
+            head = new Node(-1, -1);
+            tail = new Node(-1, -1);
+            head.next = tail;
+            tail.prev = head;
+        }
+
+        public void addFirst(Node node) {
+            // add a new node right after the dummy head
+            node.prev = head;
+            node.next = head.next;
+            head.next.prev = node;
+            head.next = node;
+        }
+
+        public Node remove(Node node) {
+            // remove a node from its current position
+            node.prev.next = node.next;
+            node.next.prev = node.prev;
+            node.next = null;
+            node.prev = null;
+            return node;
+        }
+
+        public Node removeLast() {
+            // remove the last node before the dummy tail (the least recently used one)
+            if (isEmpty()) {
+                return null; // list is empty, nothing to remove
+            }
+            return remove(tail.prev);
+        }
+
+        public boolean isEmpty() {
+            // check if the list is empty by seeing if the dummy head is directly connected to the dummy tail
+            return head.next == tail;
+        }
+    }
+}
+
