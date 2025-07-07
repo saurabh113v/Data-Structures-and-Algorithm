@@ -1,0 +1,42 @@
+class Node{
+  int data;
+  Node Next;
+
+  Node(int val){
+    this.data = val;
+    this.Next = null;
+  }
+}
+public class deleteHeadSll {
+
+  //Delete the head Node and return the new head
+  static Node deleteHead(Node head){
+    //Check if the list is empty
+    if (head == null) {
+      return null;
+    }
+    //Store the curr head in a temp variable 
+    Node temp = head;
+    //Move the head pointer to the next node
+    head = head.Next;
+    //Help the garbage collector by removing the references
+    temp = null;
+    return head;
+  }
+
+  static void printList(Node curr){
+    while (curr != null) {
+      System.out.println(curr.data + " ");
+      curr = curr.Next;
+    }
+  }
+
+  public static void main(String[] args) {
+    Node head = new Node(3);
+    head.Next = new Node(12);
+    head.Next.Next= new Node(15);
+    head.Next.Next.Next = new Node(18);
+    head = deleteHead(head);
+    printList(head);
+  }
+}
