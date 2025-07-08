@@ -1,0 +1,15 @@
+public class largestElement {
+   public static void main(String[] args) {
+    int arr[] ={ 5,3,2,6,1};
+    System.out.println("Largest elements in the array :" + findlagestElement(arr));
+   }
+   static int findlagestElement(int arr[]){
+    int max = arr[0];
+    for(int i = 0; i<arr.length; i++){
+      if(arr[i]> max){
+        max = arr[i];
+      }
+    }
+    return max;
+   }
+}
