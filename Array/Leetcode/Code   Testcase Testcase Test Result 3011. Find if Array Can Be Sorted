@@ -1,0 +1,53 @@
+import java.util.*;
+
+class Solution {
+
+    public static void main(String[] args) {
+        Solution sol = new Solution();
+
+        int nums1[] = {8, 4, 2, 30, 15};
+        int nums2[] = {1, 2, 3, 4, 5};
+        int nums3[] = {3, 16, 8, 4, 2};
+
+        System.out.println("The array is Sorted: " + sol.canSortArray(nums1)); // true
+        System.out.println("The array is Sorted: " + sol.canSortArray(nums2)); // true
+        System.out.println("The array is Sorted: " + sol.canSortArray(nums3)); // false
+    }
+
+    public boolean canSortArray(int[] nums) {
+        int n = nums.length;
+        // Convert to a list for easy swapping
+        List<Integer> list = new ArrayList<>();
+        for (int num : nums) list.add(num);
+
+        boolean changed = true;
+
+        // Bubble-sort-like approach but only swap if set bits are equal
+        while (changed) {
+            changed = false;
+            for (int i = 0; i < n - 1; i++) {
+                if (list.get(i) > list.get(i + 1) &&
+                        countSetBits(list.get(i)) == countSetBits(list.get(i + 1))) {
+                    Collections.swap(list, i, i + 1);
+                    changed = true;
+                }
+            }
+        }
+
+        // Check if sorted
+        for (int i = 1; i < n; i++) {
+            if (list.get(i) < list.get(i - 1)) return false;
+        }
+
+        return true;
+    }
+
+    private int countSetBits(int n) {
+        int count = 0;
+        while (n != 0) {
+            count += (n & 1);
+            n >>= 1;
+        }
+        return count;
+    }
+}
