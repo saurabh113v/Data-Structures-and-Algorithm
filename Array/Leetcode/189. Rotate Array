@@ -1,0 +1,36 @@
+class Solution {
+      private int[] nums;
+    public void rotate(int[] nums, int k) {
+         this.nums = nums;
+
+        // Number of elements in the array
+        int n = nums.length;
+
+        // Normalize the number of steps k to avoid extra rotations
+        k %= n;
+
+        // Reverse the entire array
+        reverse(0, n - 1);
+
+        // Reverse the first part (up to k elements)
+        reverse(0, k - 1);
+
+        // Reverse the second part (from k to the end of the array)
+        reverse(k, n - 1);
+    }
+
+    /**
+     * Reverses elements in the array between indices i and j.
+     * @param i Starting index for reversal.
+     * @param j Ending index for reversal.
+     */
+    private void reverse(int i, int j) {
+        while (i < j) {
+            int temp = nums[i];
+            nums[i] = nums[j];
+            nums[j] = temp;
+            ++i;
+            --j;
+        }
+    }
+}
