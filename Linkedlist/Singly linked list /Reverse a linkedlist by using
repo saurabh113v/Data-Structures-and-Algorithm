@@ -1,0 +1,40 @@
+class Node{
+  int data;
+  Node next;
+
+  Node(int d){
+    data = d;
+    next = null;
+  }
+}
+public class reverseLinkedList {
+  static Node reverse(Node head){
+    if (head == null || head.next == null ) {
+      return head;
+    }
+    Node newhead = reverse(head.next);
+    Node front = head.next;
+    front.next = head;
+    head.next = null;
+    return newhead;
+  }
+
+  static void printList(Node head) {
+  Node temp = head;
+  while (temp != null) {
+    System.out.print(temp.data + " ");
+    temp = temp.next;
+  }
+  System.out.println();
+}
+
+  public static void main(String[] args) {
+    Node head = new Node(4);
+    head.next = new Node(8);
+    head.next.next= new Node(5);
+ 
+  head = reverse(head);
+  System.out.print("The reversed linked list is: ");
+  printList(head);
+  }
+}
