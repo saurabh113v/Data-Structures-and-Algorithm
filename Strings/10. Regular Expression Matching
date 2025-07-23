@@ -1,0 +1,37 @@
+class Solution {
+    public boolean isMatch(String text, String pattern) {
+        int textLength = text.length();
+        int patternLength = pattern.length();
+      
+        // dp[i][j] will be true if the first i characters in the text match the first j characters of the pattern
+        boolean[][] dp = new boolean[textLength + 1][patternLength + 1];
+      
+        // Base case: empty text and empty pattern are a match
+        dp[0][0] = true;
+      
+        // Iterate over each position in the text and pattern
+        for (int i = 0; i <= textLength; i++) {
+            for (int j = 1; j <= patternLength; j++) {
+              
+                // If the current pattern character is '*', it will be part of a '*' pair with the prev char
+                if (pattern.charAt(j - 1) == '*') {
+                    // Check the position without the '*' pair (reduce pattern by 2)
+                    dp[i][j] = dp[i][j - 2];
+                    // If text character matches pattern character before '*' or if it's a '.'
+                    if (i > 0 && (pattern.charAt(j - 2) == '.' || pattern.charAt(j - 2) == text.charAt(i - 1))) {
+                        // 'OR' with the position above to see if any prev occurrences match
+                        dp[i][j] |= dp[i - 1][j];
+                    }
+                } else {
+                    // For '.' or exact match, current dp position is based on the prev diagonal position
+                    if (i > 0 && (pattern.charAt(j - 1) == '.' || pattern.charAt(j - 1) == text.charAt(i - 1))) {
+                        dp[i][j] = dp[i - 1][j - 1];
+                    }
+                }
+            }
+        }
+      
+        // The result is at the bottom-right corner, indicating if the entire text matches the entire pattern
+        return dp[textLength][patternLength];
+    }
+}
