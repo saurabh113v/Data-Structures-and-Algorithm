@@ -1,4 +1,4 @@
-//https://chat.whatsapp.com/C6RqxHHsNGq3VIzLwBAw85?mode=ac_t
+
 class Solution {
   public List<List<Integer>> generate(int numRows) {
     List<List<Integer>> ans = new ArrayList<>();
