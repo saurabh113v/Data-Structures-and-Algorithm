@@ -1,0 +1,63 @@
+class Solution {
+public:
+    void dfs(int u, vector<vector<int>>& adj, int gId, vector<int>& groups,
+             vector<bool>& seen) {
+        seen[u] = true;
+        groups[u] = gId;
+        for (int v : adj[u]) {
+            if (!seen[v]) {
+                dfs(v, adj, gId, groups, seen);
+            }
+        }
+    }
+    vector<int> processQueries(int c, vector<vector<int>>& connections,
+                               vector<vector<int>>& queries) {
+        vector<vector<int>> adj(c + 1);
+        for (auto& e : connections) {
+            int u = e[0], v = e[1];
+            adj[u].push_back(v);
+            adj[v].push_back(u);
+        }
+
+        vector<bool> seen(c + 1, false);
+        vector<int> groups(c + 1, -1);
+        int compCount = 0;
+        for (int i = 1; i <= c; ++i) {
+            if (!seen[i]) {
+                dfs(i, adj, compCount, groups, seen);
+                ++compCount;
+            }
+        }
+
+        vector<set<int>> st(compCount);
+        for (int i = 1; i <= c; ++i) {
+            st[groups[i]].insert(i);
+        }
+
+        vector<bool> online(c + 1, true);
+        vector<int> ans;
+        
+
+        for (auto& q : queries) {
+            int type = q[0], x = q[1];
+            int g = groups[x];
+            if (type == 2) {
+                if (online[x]) {
+                    online[x] = false;
+                    st[g].erase(x);
+                }
+            } else {
+                if (online[x]) {
+                    ans.push_back(x);
+                } else {
+                    if (st[g].empty()) {
+                        ans.push_back(-1);
+                    } else {
+                        ans.push_back(*st[g].begin());
+                    }
+                }
+            }
+        }
+        return ans;
+    }
+};
