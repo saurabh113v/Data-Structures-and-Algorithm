@@ -1,0 +1,38 @@
+class Solution {
+    public int countTrapezoids(int[][] points) {
+        final long MOD = 1_000_000_007L;
+        
+        // Count points by their y-coordinate
+        Map<Integer, Integer> countByY = new HashMap<>();
+        for (int[] p : points) {
+            int y = p[1];
+            countByY.put(y, countByY.getOrDefault(y, 0) + 1);
+        }
+        
+        long totalPairs = 0L;  // sum of C(cnt_y, 2)
+        long sumSquares = 0L;  // sum of C(cnt_y, 2)^2
+        
+        for (int cnt : countByY.values()) {
+            if (cnt >= 2) {
+                // s = C(cnt, 2) = cnt * (cnt - 1) / 2
+                long s = (long) cnt * (cnt - 1) / 2;
+                s %= MOD;
+                
+                totalPairs = (totalPairs + s) % MOD;
+                sumSquares = (sumSquares + (s * s) % MOD) % MOD;
+            }
+        }
+        
+        // Number of trapezoids = sum_{y1<y2} s_y1 * s_y2
+        // = ((sum s_y)^2 - sum s_y^2) / 2
+        long ans = (totalPairs * totalPairs) % MOD;
+        ans = (ans - sumSquares) % MOD;
+        if (ans < 0) ans += MOD;
+        
+        // Modular inverse of 2 under MOD (since MOD is prime and odd)
+        long inv2 = (MOD + 1) / 2; // 2 * inv2 ≡ 1 (mod MOD)
+        ans = (ans * inv2) % MOD;
+        
+        return (int) ans;
+    }
+}
