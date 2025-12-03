@@ -1,0 +1,107 @@
+import java.util.*;
+
+class Solution {
+
+    private static final class Slope {
+        final int dy;
+        final int dx;
+        Slope(int dy, int dx) { this.dy = dy; this.dx = dx; }
+        @Override public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Slope)) return false;
+            Slope s = (Slope) o;
+            return dy == s.dy && dx == s.dx;
+        }
+        @Override public int hashCode() {
+            return (dy * 1000003) ^ dx;
+        }
+    }
+
+    private Slope getSlope(int x1, int x2, int y1, int y2) {
+        int dx = x1 - x2;
+        int dy = y1 - y2;
+
+        if (dx < 0) { dx = -dx; dy = -dy; }
+
+        if (dx == 0) return new Slope(1, 0);   // vertical
+        if (dy == 0) return new Slope(0, 1);   // horizontal
+
+        int g = gcd(Math.abs(dx), Math.abs(dy));
+        return new Slope(dy / g, dx / g);
+    }
+
+    private int gcd(int a, int b) {
+        while (b != 0) {
+            int t = a % b;
+            a = b;
+            b = t;
+        }
+        return Math.abs(a);
+    }
+
+    public int countTrapezoids(int[][] points) {
+        int n = points.length;
+
+        // mp: slope -> (intercept -> count of point-pairs on that exact line)
+        Map<Slope, Map<Long, Integer>> mp = new HashMap<>();
+
+        // mids: midpointKey -> count of diagonals with that midpoint
+        Map<Long, Integer> mids = new HashMap<>();
+        // midsDiff: midpointKey -> (slopeOfDiagonal -> count)
+        Map<Long, Map<Slope, Integer>> midsDiff = new HashMap<>();
+
+        long pg = 0L; // parallelogram correction (to subtract)
+
+        for (int i = 0; i < n; ++i) {
+            int x1 = points[i][0], y1 = points[i][1];
+            for (int j = i + 1; j < n; ++j) {
+                int x2 = points[j][0], y2 = points[j][1];
+
+                Slope slope = getSlope(x1, x2, y1, y2);
+
+                long intercept = (long) y1 * slope.dx - (long) x1 * slope.dy;
+
+                mp.computeIfAbsent(slope, k -> new HashMap<>());
+                Map<Long, Integer> inner = mp.get(slope);
+                inner.put(intercept, inner.getOrDefault(intercept, 0) + 1);
+
+                long mx = (long) x1 + x2;
+                long my = (long) y1 + y2;
+                long midKey = (mx << 32) ^ (my & 0xffffffffL);
+
+                int beforeAll = mids.getOrDefault(midKey, 0);
+                Map<Slope, Integer> slopeMap = midsDiff.computeIfAbsent(midKey, k -> new HashMap<>());
+                int beforeSameSlope = slopeMap.getOrDefault(slope, 0);
+
+                // existing diagonals with same midpoint but different slope contribute to parallelograms
+                pg += (beforeAll - beforeSameSlope);
+
+                // update counts
+                mids.put(midKey, beforeAll + 1);
+                slopeMap.put(slope, beforeSameSlope + 1);
+            }
+        }
+
+        long ans = 0L;
+        for (Map<Long, Integer> interceptMap : mp.values()) {
+            long edges = 0L;
+            for (int cnt : interceptMap.values()) {
+                ans += edges * cnt;
+                edges += cnt;
+            }
+        }
+
+        long result = ans - pg;
+        return (int) result; // cast to int to match function signature (same as C++ return type)
+    }
+
+    // optional main to test
+    public static void main(String[] args) {
+        Solution s = new Solution();
+        int[][] pts1 = { {-3,2},{3,0},{2,3},{3,2},{2,-3} };
+        System.out.println(s.countTrapezoids(pts1)); // expected 2
+
+        int[][] pts2 = { {0,0},{1,0},{0,1},{2,1} };
+        System.out.println(s.countTrapezoids(pts2)); // expected 1
+    }
+}
