@@ -1,0 +1,31 @@
+class Solution {
+    public boolean completePrime(int num) {
+       String s = String.valueOf(num);
+        int len = s.length();
+        
+        for (int i = 1; i <= len; i++) {
+            int prefix = Integer.parseInt(s.substring(0, i));
+            if (!isPrime(prefix)) return false;
+        }
+        
+        for (int i = 1; i <= len; i++) {
+            int suffix = Integer.parseInt(s.substring(len - i));
+            if (!isPrime(suffix)) return false;
+        }
+        
+        return true;
+    }
+    
+    private boolean isPrime(int n) {
+        if (n < 2) return false;
+        if (n == 2 || n == 3) return true;
+        if (n % 2 == 0) return false;
+        
+        int sqrt = (int)Math.sqrt(n);
+        for (int i = 3; i <= sqrt; i += 2) {
+            if (n % i == 0) return false;
+        }
+        
+        return true; 
+    }
+}©leetcode
