@@ -1,0 +1,56 @@
+class Solution {
+    public long maximumProfit(int[] prices, int k) {
+        int n = prices.length;
+      
+        // dp[day][transactionCount][state]
+        // state: 0 = no stock, 1 = holding stock (bought), 2 = holding stock (shorted)
+        long[][][] dp = new long[n][k + 1][3];
+      
+        // Initialize first day states for all transaction counts
+        for (int txn = 1; txn <= k; txn++) {
+            // Buying stock on day 0
+            dp[0][txn][1] = -prices[0];
+            // Shorting stock on day 0
+            dp[0][txn][2] = prices[0];
+        }
+      
+        // Fill the DP table for each day and transaction count
+        for (int day = 1; day < n; day++) {
+            for (int txn = 1; txn <= k; txn++) {
+                // State 0: Not holding any stock
+                // Can transition from:
+                // - Previous day with no stock (do nothing)
+                // - Previous day holding bought stock (sell it)
+                // - Previous day holding shorted stock (buy to cover)
+                dp[day][txn][0] = Math.max(
+                    dp[day - 1][txn][0],
+                    Math.max(
+                        dp[day - 1][txn][1] + prices[day],  // Sell bought stock
+                        dp[day - 1][txn][2] - prices[day]   // Cover shorted stock
+                    )
+                );
+              
+                // State 1: Holding stock (bought position)
+                // Can transition from:
+                // - Previous day already holding bought stock (do nothing)
+                // - Previous day with no stock, use a new transaction to buy
+                dp[day][txn][1] = Math.max(
+                    dp[day - 1][txn][1],
+                    dp[day - 1][txn - 1][0] - prices[day]  // Buy stock
+                );
+              
+                // State 2: Holding stock (shorted position)
+                // Can transition from:
+                // - Previous day already holding shorted stock (do nothing)
+                // - Previous day with no stock, use a new transaction to short
+                dp[day][txn][2] = Math.max(
+                    dp[day - 1][txn][2],
+                    dp[day - 1][txn - 1][0] + prices[day]  // Short stock
+                );
+            }
+        }
+      
+        // Return maximum profit with at most k transactions, ending with no stock
+        return dp[n - 1][k][0];
+    }
+}
