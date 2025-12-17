@@ -1,0 +1,81 @@
+class Solution {
+    static class DPState {
+        int[] noDiscount;   // parent did NOT buy
+        int[] withDiscount; // parent DID buy
+
+        DPState(int[] a, int[] b) {
+            noDiscount = a;
+            withDiscount = b;
+        }
+    }
+
+    int n, budget;
+    int[] present, future;
+    List<Integer>[] tree;
+    public int maxProfit(int n, int[] present, int[] future, int[][] hierarchy, int budget) {
+         this.n = n;
+        this.present = present;
+        this.future = future;
+        this.budget = budget;
+
+        // Build tree
+        tree = new ArrayList[n];
+        for (int i = 0; i < n; i++) tree[i] = new ArrayList<>();
+
+        for (int[] edge : hierarchy) {
+            int u = edge[0] - 1;
+            int v = edge[1] - 1;
+            tree[u].add(v);
+        }
+
+        DPState res = dfs(0);
+
+        int ans = 0;
+        for (int b = 0; b <= budget; b++) {
+            ans = Math.max(ans, res.noDiscount[b]);
+        }
+        return ans;
+    }
+
+    private DPState dfs(int u) {
+        int[] dp0 = new int[budget + 1]; // parent didn't buy
+        int[] dp1 = new int[budget + 1]; // parent bought
+
+        for (int v : tree[u]) {
+            DPState child = dfs(v);
+            dp0 = merge(dp0, child.noDiscount);
+            dp1 = merge(dp1, child.withDiscount);
+        }
+
+        int[] newDp0 = Arrays.copyOf(dp0, budget + 1);
+        int[] newDp1 = Arrays.copyOf(dp0, budget + 1);
+
+        // Buy at full price
+        int fullCost = present[u];
+        int fullProfit = future[u] - fullCost;
+        for (int b = fullCost; b <= budget; b++) {
+            newDp0[b] = Math.max(newDp0[b], dp1[b - fullCost] + fullProfit);
+        }
+
+        // Buy at half price (discount)
+        int halfCost = present[u] / 2;
+        int halfProfit = future[u] - halfCost;
+        for (int b = halfCost; b <= budget; b++) {
+            newDp1[b] = Math.max(newDp1[b], dp1[b - halfCost] + halfProfit);
+        }
+
+        return new DPState(newDp0, newDp1);
+    }
+
+    private int[] merge(int[] a, int[] b) {
+        int[] res = new int[budget +1];
+        Arrays.fill(res, Integer.MIN_VALUE / 2);
+
+        for (int i = 0; i <= budget; i++) {
+            for (int j = 0; i + j <= budget; j++) {
+                res[i + j] = Math.max(res[i + j], a[i] + b[j]);
+            }
+        }
+        return res;
+    }
+}
