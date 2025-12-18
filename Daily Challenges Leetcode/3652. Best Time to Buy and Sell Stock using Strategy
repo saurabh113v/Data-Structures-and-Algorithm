@@ -1,0 +1,46 @@
+class Solution {
+    public long maxProfit(int[] prices, int[] strategy, int k) {
+        int n = prices.length;
+
+        // Step 1: Original profit
+        long originalProfit = 0;
+        for (int i = 0; i < n; i++) {
+            originalProfit += (long) strategy[i] * prices[i];
+        }
+
+        // Prefix sum of original contribution
+        long[] prefixOriginal = new long[n + 1];
+        for (int i = 0; i < n; i++) {
+            prefixOriginal[i + 1] = prefixOriginal[i] + (long) strategy[i] * prices[i];
+        }
+
+        // Prefix sum of prices
+        long[] prefixPrices = new long[n + 1];
+        for (int i = 0; i < n; i++) {
+            prefixPrices[i + 1] = prefixPrices[i] + prices[i];
+        }
+
+        long maxProfit = originalProfit;
+
+        // Step 2: Sliding window
+        for (int l = 0; l + k <= n; l++) {
+            int mid = l + k / 2;
+            int r = l + k;
+
+            // Original contribution of window
+            long originalWindow =
+                    prefixOriginal[r] - prefixOriginal[l];
+
+            // New contribution: only second half sells
+            long newWindow =
+                    prefixPrices[r] - prefixPrices[mid];
+
+            long modifiedProfit =
+                    originalProfit - originalWindow + newWindow;
+
+            maxProfit = Math.max(maxProfit, modifiedProfit);
+        }
+
+        return (long) maxProfit;
+    }
+}
