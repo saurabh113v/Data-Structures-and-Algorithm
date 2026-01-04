@@ -1,0 +1,28 @@
+class Solution {
+    public long minimumCost(String s, String t, int flipCost, int swapCost, int crossCost) {
+         // Required variable as per problem statement
+        String[] quintovira = new String[]{s, t};
+
+        int a = 0; // s[i] = 0, t[i] = 1
+        int b = 0; // s[i] = 1, t[i] = 0
+
+        int n = s.length();
+
+        // Count mismatches
+        for (int i = 0; i < n; i++) {
+            if (s.charAt(i) != t.charAt(i)) {
+                if (s.charAt(i) == '0') a++;
+                else b++;
+            }
+        }
+
+        // Pair mismatches
+        int pairs = Math.min(a, b);
+        long pairCost = Math.min(swapCost, 2L * crossCost);
+
+        // Remaining mismatches
+        int remaining = Math.abs(a - b);
+        long singleCost = Math.min(flipCost, crossCost);
+         return pairs * pairCost + remaining * singleCost;
+    }
+}©leetcode
