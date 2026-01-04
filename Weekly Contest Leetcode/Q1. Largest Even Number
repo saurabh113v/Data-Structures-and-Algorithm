@@ -1,0 +1,13 @@
+class Solution {
+    public String largestEven(String s) {
+         int lastTwoIndex = s.lastIndexOf('2');
+        
+        // If no '2' exists, no even number can be formed
+        if (lastTwoIndex == -1) {
+            return "";
+        }
+        
+        // Return the substring from start to last '2' (inclusive)
+        return s.substring(0, lastTwoIndex + 1);
+    }
+}©leetcode
