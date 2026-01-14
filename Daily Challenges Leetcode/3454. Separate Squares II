@@ -1,11 +1,13 @@
+import java.util.*;
+
 class Solution {
 
     static class Event {
-        double y;
-        int type; // +1 start, -1 end
+        long y;
+        int type; // +1 = add, -1 = remove
         long x1, x2;
 
-        Event(double y, int type, long x1, long x2) {
+        Event(long y, int type, long x1, long x2) {
             this.y = y;
             this.type = type;
             this.x1 = x1;
@@ -27,89 +29,85 @@ class Solution {
             events.add(new Event(y2, -1, x1, x2));
         }
 
-        events.sort(Comparator.comparingDouble(e -> e.y));
+        // Sort events by y
+        events.sort(Comparator.comparingLong(e -> e.y));
 
+        // Step 1: compute total union area
         double totalArea = computeTotalArea(events);
         double half = totalArea / 2.0;
 
+        // Step 2: sweep again to find split y
         TreeMap<Long, Integer> active = new TreeMap<>();
-        double prevY = events.get(0).y;
-        double accumulated = 0;
+        long prevY = events.get(0).y;
+        double areaSoFar = 0;
 
         for (Event e : events) {
-            double curY = e.y;
+            long curY = e.y;
             double height = curY - prevY;
 
             if (height > 0) {
                 double width = computeUnionWidth(active);
                 double slabArea = width * height;
 
-                if (accumulated + slabArea >= half) {
-                    return prevY + (half - accumulated) / width;
+                if (areaSoFar + slabArea >= half) {
+                    return prevY + (half - areaSoFar) / width;
                 }
 
-                accumulated += slabArea;
+                areaSoFar += slabArea;
             }
 
-            if (e.type == 1) {
-                active.put(e.x1, active.getOrDefault(e.x1, 0) + 1);
-                active.put(e.x2, active.getOrDefault(e.x2, 0) - 1);
-            } else {
-                active.put(e.x1, active.get(e.x1) - 1);
-                active.put(e.x2, active.get(e.x2) + 1);
-            }
-
-            if (active.get(e.x1) == 0) active.remove(e.x1);
-            if (active.get(e.x2) == 0) active.remove(e.x2);
-
+            updateActive(active, e);
             prevY = curY;
         }
 
         return prevY;
     }
 
+    // Compute total union area using sweep line
     private double computeTotalArea(List<Event> events) {
         TreeMap<Long, Integer> active = new TreeMap<>();
-        double prevY = events.get(0).y;
+        long prevY = events.get(0).y;
         double area = 0;
 
         for (Event e : events) {
-            double curY = e.y;
+            long curY = e.y;
             double height = curY - prevY;
+
             if (height > 0) {
                 area += computeUnionWidth(active) * height;
             }
 
-            if (e.type == 1) {
-                active.put(e.x1, active.getOrDefault(e.x1, 0) + 1);
-                active.put(e.x2, active.getOrDefault(e.x2, 0) - 1);
-            } else {
-                active.put(e.x1, active.get(e.x1) - 1);
-                active.put(e.x2, active.get(e.x2) + 1);
-            }
-
-            if (active.get(e.x1) == 0) active.remove(e.x1);
-            if (active.get(e.x2) == 0) active.remove(e.x2);
-
+            updateActive(active, e);
             prevY = curY;
         }
 
         return area;
     }
 
+    // Update active x-intervals safely
+    private void updateActive(TreeMap<Long, Integer> active, Event e) {
+        active.put(e.x1, active.getOrDefault(e.x1, 0) + e.type);
+        active.put(e.x2, active.getOrDefault(e.x2, 0) - e.type);
+
+        if (active.get(e.x1) == 0) active.remove(e.x1);
+        if (active.get(e.x2) == 0) active.remove(e.x2);
+    }
+
+    // Compute union width of active x-intervals
     private double computeUnionWidth(TreeMap<Long, Integer> map) {
         long prev = 0;
         int count = 0;
         double width = 0;
 
-        for (Map.Entry<Long, Integer> e : map.entrySet()) {
-            long x = e.getKey();
+        for (Map.Entry<Long, Integer> entry : map.entrySet()) {
+            long x = entry.getKey();
             if (count > 0) {
                 width += x - prev;
             }
-            count += e.getValue();
+            count += entry.getValue();
             prev = x;
         }
+
         return width;
     }
 }
