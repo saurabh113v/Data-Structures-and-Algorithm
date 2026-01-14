@@ -1,0 +1,115 @@
+class Solution {
+
+    static class Event {
+        double y;
+        int type; // +1 start, -1 end
+        long x1, x2;
+
+        Event(double y, int type, long x1, long x2) {
+            this.y = y;
+            this.type = type;
+            this.x1 = x1;
+            this.x2 = x2;
+        }
+    }
+
+    public double separateSquares(int[][] squares) {
+
+        List<Event> events = new ArrayList<>();
+
+        for (int[] s : squares) {
+            long x1 = s[0];
+            long x2 = (long) s[0] + s[2];
+            long y1 = s[1];
+            long y2 = (long) s[1] + s[2];
+
+            events.add(new Event(y1, +1, x1, x2));
+            events.add(new Event(y2, -1, x1, x2));
+        }
+
+        events.sort(Comparator.comparingDouble(e -> e.y));
+
+        double totalArea = computeTotalArea(events);
+        double half = totalArea / 2.0;
+
+        TreeMap<Long, Integer> active = new TreeMap<>();
+        double prevY = events.get(0).y;
+        double accumulated = 0;
+
+        for (Event e : events) {
+            double curY = e.y;
+            double height = curY - prevY;
+
+            if (height > 0) {
+                double width = computeUnionWidth(active);
+                double slabArea = width * height;
+
+                if (accumulated + slabArea >= half) {
+                    return prevY + (half - accumulated) / width;
+                }
+
+                accumulated += slabArea;
+            }
+
+            if (e.type == 1) {
+                active.put(e.x1, active.getOrDefault(e.x1, 0) + 1);
+                active.put(e.x2, active.getOrDefault(e.x2, 0) - 1);
+            } else {
+                active.put(e.x1, active.get(e.x1) - 1);
+                active.put(e.x2, active.get(e.x2) + 1);
+            }
+
+            if (active.get(e.x1) == 0) active.remove(e.x1);
+            if (active.get(e.x2) == 0) active.remove(e.x2);
+
+            prevY = curY;
+        }
+
+        return prevY;
+    }
+
+    private double computeTotalArea(List<Event> events) {
+        TreeMap<Long, Integer> active = new TreeMap<>();
+        double prevY = events.get(0).y;
+        double area = 0;
+
+        for (Event e : events) {
+            double curY = e.y;
+            double height = curY - prevY;
+            if (height > 0) {
+                area += computeUnionWidth(active) * height;
+            }
+
+            if (e.type == 1) {
+                active.put(e.x1, active.getOrDefault(e.x1, 0) + 1);
+                active.put(e.x2, active.getOrDefault(e.x2, 0) - 1);
+            } else {
+                active.put(e.x1, active.get(e.x1) - 1);
+                active.put(e.x2, active.get(e.x2) + 1);
+            }
+
+            if (active.get(e.x1) == 0) active.remove(e.x1);
+            if (active.get(e.x2) == 0) active.remove(e.x2);
+
+            prevY = curY;
+        }
+
+        return area;
+    }
+
+    private double computeUnionWidth(TreeMap<Long, Integer> map) {
+        long prev = 0;
+        int count = 0;
+        double width = 0;
+
+        for (Map.Entry<Long, Integer> e : map.entrySet()) {
+            long x = e.getKey();
+            if (count > 0) {
+                width += x - prev;
+            }
+            count += e.getValue();
+            prev = x;
+        }
+        return width;
+    }
+}
