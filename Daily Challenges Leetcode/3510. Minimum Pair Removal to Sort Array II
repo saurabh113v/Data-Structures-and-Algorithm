@@ -1,0 +1,94 @@
+import java.util.*;
+
+class Solution {
+
+    static class Node {
+        long val;
+        Node prev, next;
+        boolean removed = false;
+
+        Node(long val) {
+            this.val = val;
+        }
+    }
+
+    static class Pair {
+        long sum;
+        Node left, right;
+
+        Pair(Node l, Node r) {
+            this.left = l;
+            this.right = r;
+            this.sum = l.val + r.val;
+        }
+    }
+
+    public int minimumPairRemoval(int[] nums) {
+        int n = nums.length;
+        if (n <= 1) return 0;
+
+        // Build doubly linked list
+        Node[] nodes = new Node[n];
+        for (int i = 0; i < n; i++) {
+            nodes[i] = new Node(nums[i]);
+            if (i > 0) {
+                nodes[i - 1].next = nodes[i];
+                nodes[i].prev = nodes[i - 1];
+            }
+        }
+
+        // Min heap based on pair sum
+        PriorityQueue<Pair> pq = new PriorityQueue<>(
+            (a, b) -> Long.compare(a.sum, b.sum)
+        );
+
+        // Add initial adjacent pairs
+        for (int i = 0; i < n - 1; i++) {
+            pq.offer(new Pair(nodes[i], nodes[i + 1]));
+        }
+
+        int operations = 0;
+
+        while (!isNonDecreasing(nodes[0])) {
+            Pair p = pq.poll();
+
+            // Skip invalid pairs
+            if (p.left.removed || p.right.removed || p.left.next != p.right)
+                continue;
+
+            // Merge
+            Node merged = new Node(p.sum);
+            operations++;
+
+            Node l = p.left.prev;
+            Node r = p.right.next;
+
+            if (l != null) l.next = merged;
+            if (r != null) r.prev = merged;
+
+            merged.prev = l;
+            merged.next = r;
+
+            p.left.removed = true;
+            p.right.removed = true;
+
+            // Update new adjacent pairs
+            if (l != null) pq.offer(new Pair(l, merged));
+            if (r != null) pq.offer(new Pair(merged, r));
+
+            // Update head if needed
+            if (merged.prev == null) nodes[0] = merged;
+        }
+
+        return operations;
+    }
+
+    private boolean isNonDecreasing(Node head) {
+        Node curr = head;
+        while (curr != null && curr.next != null) {
+            if (curr.val > curr.next.val) return false;
+            curr = curr.next;
+        }
+        return true;
+    }
+}
