@@ -1,0 +1,82 @@
+import java.util.*;
+
+class Multiset {
+    private TreeMap<Integer, Integer> map = new TreeMap<>();
+    private int sz = 0;
+
+    public void add(int x) {
+        map.merge(x, 1, Integer::sum);
+        sz++;
+    }
+
+    public void remove(int x) {
+        map.merge(x, -1, Integer::sum);
+        if (map.get(x) == 0) map.remove(x);
+        sz--;
+    }
+
+    public int min() { return map.firstKey(); }
+    public int max() { return map.lastKey(); }
+    public boolean contains(int x) { return map.containsKey(x); }
+    public int size() { return sz; }
+}
+
+class Solution {
+    public long minimumCost(int[] nums, int k, int dist) {
+        int n = nums.length;
+
+        Multiset selected = new Multiset();
+        Multiset candidates = new Multiset();
+        long sum = 0;
+
+        for (int i = 1; i <= dist + 1; i++) {
+            candidates.add(nums[i]);
+        }
+
+        sum = balance(sum, selected, candidates, k);
+        long ans = sum;
+
+        for (int r = dist + 2; r < n; r++) {
+            int out = nums[r - (dist + 1)];
+
+            if (selected.contains(out)) {
+                selected.remove(out);
+                sum -= out;
+            } else {
+                candidates.remove(out);
+            }
+
+            candidates.add(nums[r]);
+            sum = balance(sum, selected, candidates, k);
+            ans = Math.min(ans, sum);
+        }
+
+        return nums[0] + ans;
+    }
+
+    private long balance(long sum, Multiset selected, Multiset candidates, int k) {
+        while (selected.size() < k - 1) {
+            int x = candidates.min();
+            candidates.remove(x);
+            selected.add(x);
+            sum += x;
+        }
+
+        while (selected.size() > 0 && candidates.size() > 0 &&
+               selected.max() > candidates.min()) {
+
+            int big = selected.max();
+            int small = candidates.min();
+
+            selected.remove(big);
+            candidates.remove(small);
+
+            selected.add(small);
+            candidates.add(big);
+
+            sum += (long) small - big;
+        }
+
+        return sum;
+    }
+}
