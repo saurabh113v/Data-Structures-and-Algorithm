@@ -1,0 +1,28 @@
+class Solution {
+    public boolean isTrionic(int[] nums) {
+        int arrayLength = nums.length;
+        int currentIndex = 0;
+
+        while (currentIndex < arrayLength - 2 && nums[currentIndex] < nums[currentIndex + 1]){
+            currentIndex++;
+        }
+        if(currentIndex == 0){
+            return false;
+        }
+
+        int peakIndex = currentIndex;
+        while(currentIndex < arrayLength - 1 && nums[currentIndex] > nums[currentIndex + 1]){
+            currentIndex++;
+        }
+
+        if(currentIndex == peakIndex || currentIndex == arrayLength - 1 ){
+            return false;
+        }
+
+        while(currentIndex < arrayLength - 1 && nums[currentIndex] < nums[currentIndex + 1]){
+            currentIndex++;
+        }
+
+        return currentIndex == arrayLength -1 ;
+    }
+}
