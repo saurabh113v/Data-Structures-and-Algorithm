@@ -1,0 +1,25 @@
+class Solution {
+    public int minMoves(int[] nums, int limit) {
+         int[] differenceArray = new int[2 * limit + 2];
+        int arrayLength = nums.length;
+        for (int i = 0; i < arrayLength / 2; ++i) {
+            int minValue = Math.min(nums[i], nums[arrayLength - i - 1]);
+            int maxValue = Math.max(nums[i], nums[arrayLength - i - 1]);
+            differenceArray[2] += 2;
+            differenceArray[minValue + 1] -= 2;
+            differenceArray[minValue + 1] += 1;
+            differenceArray[minValue + maxValue] -= 1;
+            differenceArray[minValue + maxValue] += 1;
+            differenceArray[minValue + maxValue + 1] -= 1;
+            differenceArray[maxValue + limit + 1] += 2;
+        }
+        int minimumMoves = arrayLength;
+        int prefixSum = 0;
+        for (int targetSum = 2; targetSum < differenceArray.length; ++targetSum) {
+            prefixSum += differenceArray[targetSum];
+            minimumMoves = Math.min(minimumMoves, prefixSum);
+        }
+      
+        return minimumMoves;
+    }
+}
