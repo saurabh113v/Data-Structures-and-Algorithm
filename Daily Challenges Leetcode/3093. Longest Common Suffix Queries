@@ -1,0 +1,76 @@
+class Trie {
+    // Constant representing infinity for initialization
+    private static final int INFINITY = 1 << 30;
+  
+    // Array to store child nodes for each letter (a-z)
+    private Trie[] children = new Trie[26];
+  
+    // Minimum length of word stored at or below this node
+    private int minLength = INFINITY;
+  
+    // Index of the word with minimum length at or below this node
+    private int wordIndex = INFINITY;
+
+    /**
+     * Inserts a word into the trie in reverse order
+     * Updates minimum length and corresponding index at each node
+     * @param word the word to insert
+     * @param index the original index of the word in the container
+     */
+    public void insert(String word, int index) {
+        Trie currentNode = this;
+      
+        // Update root node's minimum length if necessary
+        if (currentNode.minLength > word.length()) {
+            currentNode.minLength = word.length();
+            currentNode.wordIndex = index;
+        }
+        for (int charPos = word.length() - 1; charPos >= 0; charPos--) {
+            int charIndex = word.charAt(charPos) - 'a';
+          
+            // Create new node if path doesn't exist
+            if (currentNode.children[charIndex] == null) {
+                currentNode.children[charIndex] = new Trie();
+            }
+          
+            // Move to child node
+            currentNode = currentNode.children[charIndex];
+          
+            // Update minimum length at current node if necessary
+            if (currentNode.minLength > word.length()) {
+                currentNode.minLength = word.length();
+                currentNode.wordIndex = index;
+            }
+        }
+    }
+    public int query(String word) {
+        Trie currentNode = this;
+        for (int charPos = word.length() - 1; charPos >= 0; charPos--) {
+            int charIndex = word.charAt(charPos) - 'a';
+            if (currentNode.children[charIndex] == null) {
+                break;
+            }
+            currentNode = currentNode.children[charIndex];
+        }
+        return currentNode.wordIndex;
+    }
+}
+class Solution {
+  
+    public int[] stringIndices(String[] wordsContainer, String[] wordsQuery) {
+        // Build trie from container words
+        Trie trie = new Trie();
+        for (int i = 0; i < wordsContainer.length; i++) {
+            trie.insert(wordsContainer[i], i);
+        }
+      
+        // Process each query word
+        int queryCount = wordsQuery.length;
+        int[] result = new int[queryCount];
+        for (int i = 0; i < queryCount; i++) {
+            result[i] = trie.query(wordsQuery[i]);
+        }
+      
+        return result;
+    }
+}
