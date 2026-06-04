@@ -1,0 +1,40 @@
+class Solution {
+    static int a = 0;
+    static int[] arr;
+    static long[] pref;
+    
+    public int cnt(int n) {
+        List<Integer> l = new ArrayList<>();
+        while(n > 0) {
+            l.add((n % 10));
+            n /= 10;
+        }
+
+        int c = 0;
+        for(int i=1;i<l.size()-1;i++) {
+            if(l.get(i-1) > l.get(i) && l.get(i) < l.get(i+1)) c++;
+            if(l.get(i-1) < l.get(i) && l.get(i) > l.get(i+1)) c++;
+        }
+
+        return c;
+    }
+
+    public int totalWaviness(int num1, int num2) {
+        if(a == 0) {
+            arr = new int[100001];
+            for(int i=100;i<=100000;i++) {
+                arr[i] = cnt(i);
+            }
+        
+            pref = new long[100001];
+            for(int i=1;i<100001;i++) {
+                pref[i] = pref[i-1] + arr[i];
+            }
+
+            a = 1;
+        }
+
+        if(num1 == 0) return (int)pref[num2];
+        return (int)(pref[num2] - pref[num1-1]);
+    }
+}
