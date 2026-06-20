@@ -1,0 +1,37 @@
+class Solution {
+    public int maxBuilding(int n, int[][] restrictions) {
+         List<int[]> restrictionList = new ArrayList<>();
+        restrictionList.addAll(Arrays.asList(restrictions));
+        restrictionList.add(new int[] {1, 0});
+        Collections.sort(restrictionList, (a, b) -> a[0] - b[0]);
+        if (restrictionList.get(restrictionList.size() - 1)[0] != n) {
+            restrictionList.add(new int[] {n, n - 1});
+        }
+      
+        int totalRestrictions = restrictionList.size();
+        for (int i = 1; i < totalRestrictions; ++i) {
+            int[] previousRestriction = restrictionList.get(i - 1);
+            int[] currentRestriction = restrictionList.get(i);
+            int distance = currentRestriction[0] - previousRestriction[0];
+            currentRestriction[1] = Math.min(currentRestriction[1], 
+                                            previousRestriction[1] + distance);
+        }
+        for (int i = totalRestrictions - 2; i > 0; --i) {
+            int[] currentRestriction = restrictionList.get(i);
+            int[] nextRestriction = restrictionList.get(i + 1);
+            int distance = nextRestriction[0] - currentRestriction[0];
+            currentRestriction[1] = Math.min(currentRestriction[1], 
+                                            nextRestriction[1] + distance);
+        }
+        int maxHeight = 0;
+        for (int i = 0; i < totalRestrictions - 1; ++i) {
+            int[] leftRestriction = restrictionList.get(i);
+            int[] rightRestriction = restrictionList.get(i + 1);
+            int distance = rightRestriction[0] - leftRestriction[0];
+            int peakHeight = (leftRestriction[1] + rightRestriction[1] + distance) / 2;
+            maxHeight = Math.max(maxHeight, peakHeight);
+        }
+      
+        return maxHeight;
+    }
+}
