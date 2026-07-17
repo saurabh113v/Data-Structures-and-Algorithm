@@ -1,0 +1,45 @@
+class Solution {
+    public int[] gcdValues(int[] nums, long[] queries) {
+        int maxValue = Arrays.stream(nums).max().getAsInt();
+        int[] frequency = new int[maxValue + 1];
+        for (int num : nums) {
+            frequency[num]++;
+        }
+        long[] gcdPairCount = new long[maxValue + 1];
+        for (int gcd = maxValue; gcd > 0; gcd--) {
+            int multiplesCount = 0;
+            for (int multiple = gcd; multiple <= maxValue; multiple += gcd) {
+                multiplesCount += frequency[multiple];
+                gcdPairCount[gcd] -= gcdPairCount[multiple];
+            }
+            gcdPairCount[gcd] += (long) multiplesCount * (multiplesCount - 1) / 2;
+        }
+        for (int i = 2; i <= maxValue; i++) {
+            gcdPairCount[i] += gcdPairCount[i - 1];
+        }
+        int queryCount = queries.length;
+        int[] result = new int[queryCount];
+        for (int i = 0; i < queryCount; i++) {
+            result[i] = search(gcdPairCount, queries[i]);
+        }
+
+        return result;
+    }
+
+    private int search(long[] cumulativeCounts, long target) {
+        int left = 0;
+        int right = cumulativeCounts.length - 1;
+        int firstTrueIndex = cumulativeCounts.length;  
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (cumulativeCounts[mid] > target) {
+                firstTrueIndex = mid;
+                right = mid - 1;  
+            } else {
+                left = mid + 1;
+            }
+        }
+
+        return firstTrueIndex;
+    }
+}
