@@ -1,0 +1,20 @@
+class Solution {
+    public int uniqueXorTriplets(int[] nums) {
+         int n = nums.length;
+        //Store all Pair Xors
+        Set<Integer> s1 = new HashSet<>();
+        for(int i = 0; i < n; i++) {
+            for(int j = i; j < n; j++) {
+                s1.add(nums[i] ^ nums[j]);
+            }
+        }
+        //Find triplet xors
+        Set<Integer> s2 = new HashSet<>();
+        for(int pairXor : s1) {
+            for(int num : nums) {
+                s2.add(pairXor ^ num);
+            }
+        }
+        return s2.size();
+    }
+}
