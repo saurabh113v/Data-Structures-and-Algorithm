@@ -1,4 +1,6 @@
-List<Integer> ans = new ArrayList<>();
+class Solution {
+    public List<Integer> remainingMethods(int n, int k, int[][] invocations) {
+        List<Integer> ans = new ArrayList<>();
     List<Integer>[] graph = new List[n];
     Arrays.setAll(graph, i -> new ArrayList<>());
 
@@ -34,3 +36,5 @@ List<Integer> ans = new ArrayList<>();
     }
 
     return ans;
+    }
+}
