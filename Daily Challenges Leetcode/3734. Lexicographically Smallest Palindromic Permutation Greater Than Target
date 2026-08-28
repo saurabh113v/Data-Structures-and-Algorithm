@@ -1,0 +1,100 @@
+class Solution {
+    public String lexPalindromicPermutation(String s, String target) {
+        int n = s.length();
+        int[] count = new int[26];
+
+        for (char c : s.toCharArray()) {
+            count[c - 'a']++;
+        }
+
+        int odd = 0;
+        char middle = 0;
+
+        for (int i = 0; i < 26; i++) {
+            if (count[i] % 2 != 0) {
+                odd++;
+                middle = (char) ('a' + i);
+            }
+        }
+
+        if (odd > 1) {
+            return "";
+        }
+
+        int m = n / 2;
+        int[] half = new int[26];
+
+        for (int i = 0; i < 26; i++) {
+            half[i] = count[i] / 2;
+        }
+
+        char[] left = new char[m];
+        int i = 0;
+
+        while (i < m) {
+            int c = target.charAt(i) - 'a';
+
+            if (half[c] == 0) {
+                break;
+            }
+
+            left[i] = target.charAt(i);
+            half[c]--;
+            i++;
+        }
+
+        if (i == m) {
+            String candidate = build(left, middle, n);
+
+            if (candidate.compareTo(target) > 0) {
+                return candidate;
+            }
+        }
+
+        for (int pos = Math.min(i, m - 1); pos >= 0; pos--) {
+            if (pos < i) {
+                half[left[pos] - 'a']++;
+            }
+
+            int targetChar = target.charAt(pos) - 'a';
+
+            for (int c = targetChar + 1; c < 26; c++) {
+                if (half[c] > 0) {
+                    left[pos] = (char) ('a' + c);
+                    half[c]--;
+
+                    int next = pos + 1;
+
+                    for (int x = 0; x < 26; x++) {
+                        while (half[x] > 0) {
+                            left[next++] = (char) ('a' + x);
+                            half[x]--;
+                        }
+                    }
+
+                    return build(left, middle, n);
+                }
+            }
+        }
+
+        return "";
+    }
+
+    private String build(char[] left, char middle, int n) {
+        StringBuilder result = new StringBuilder();
+
+        for (char c : left) {
+            result.append(c);
+        }
+
+        if (n % 2 == 1) {
+            result.append(middle);
+        }
+
+        for (int i = left.length - 1; i >= 0; i--) {
+            result.append(left[i]);
+        }
+
+        return result.toString();
+    }
+}
