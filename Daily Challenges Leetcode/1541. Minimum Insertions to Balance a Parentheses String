@@ -1,0 +1,43 @@
+class Solution {
+    public String minRemoveToMakeValid(String s) {
+        Deque<Character> stack = new ArrayDeque<>();
+        int unmatchedOpenCount = 0;
+
+        for (int i = 0; i < s.length(); i++) {
+            char currentChar = s.charAt(i);
+
+            if (currentChar == ')' && unmatchedOpenCount == 0) {
+                continue;
+            }
+
+            if (currentChar == '(') {
+                unmatchedOpenCount++;
+            } else if (currentChar == ')') {
+                unmatchedOpenCount--;
+            }
+
+            stack.push(currentChar);
+        }
+
+        StringBuilder result = new StringBuilder();
+        int unmatchedCloseCount = 0;
+
+        while (!stack.isEmpty()) {
+            char currentChar = stack.pop();
+
+            if (currentChar == '(' && unmatchedCloseCount == 0) {
+                continue;
+            }
+
+            if (currentChar == ')') {
+                unmatchedCloseCount++;
+            } else if (currentChar == '(') {
+                unmatchedCloseCount--;
+            }
+
+            result.append(currentChar);
+        }
+
+        return result.reverse().toString();
+    }
+}
